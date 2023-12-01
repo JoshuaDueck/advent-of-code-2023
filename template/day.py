@@ -3,7 +3,7 @@ TEST2_ANSWER = 0
 
 
 def main():
-    with open('testinput.txt') as f:
+    with open('testinput1.txt') as f:
         lines = f.readlines()
         result = part1(lines)
         if result == TEST1_ANSWER:
@@ -11,15 +11,15 @@ def main():
         else:
             print("Test failed, \
                     expected: {}, actual: {}".format(TEST1_ANSWER, result))
-            return
 
+    with open('testinput2.txt') as f:
+        lines = f.readlines()
         result = part2(lines)
         if result == TEST2_ANSWER:
             print("Test passed, continuing...")
         else:
             print("Test failed, \
                     expected: {}, actual: {}".format(TEST2_ANSWER, result))
-            return
 
     with open('input.txt') as f:
         lines = f.readlines()
@@ -38,4 +38,3 @@ def part2(lines):
 
 if __name__ == '__main__':
     main()
-
