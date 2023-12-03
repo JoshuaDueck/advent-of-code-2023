@@ -1,10 +1,10 @@
 TEST1_ANSWER = 4361
-TEST2_ANSWER = 0
+TEST2_ANSWER = 467835
 
 ADJACENCY_MATRIX = [
-    [(-1, 1), (0, 1), (1, 1)],
-    [(-1, 0), (0, 0), (1, 0)],
-    [(-1, -1), (0, -1), (1, -1)],
+    (-1, 1), (0, 1), (1, 1),
+    (-1, 0), (0, 0), (1, 0),
+    (-1, -1), (0, -1), (1, -1),
 ]
 
 
@@ -36,37 +36,93 @@ def main():
 
 def part1(lines):
     # Find indices of any symbol (use a check, if not int, and not '.', symbol)
-    indices = []
+    indices = set()
 
-    for i, line in enumerate(lines):
-        for j, c in enumerate(line):
-            # If it is not a digit, and not a ., add (j,i) to the indices
-            if c != '.' and not c.isdigit():
-                indices.append((j, i))
+    for y, line in enumerate(lines):
+        for x, c in enumerate(line):
+            # If it is not a digit, and not a ., add (j, i) to the indices
+            if c != '.' and not c.isdigit() and c != '\n':
+                indices.add((x, y))
 
-    for index in indices:
-        # TBH, it's probably easier to just check every number as we come
-        # across it, and if there is a symbol next to it, we consider the number
-        # valid, and write it to the sum.
-        # We can use the indices array to check this, and can use the adjacency
-        # matrix as well.
-        pass
+    answer = 0
+    for y, line in enumerate(lines):
+        curr_digit_str = ''
+        curr_valid = False
+        for x, c in enumerate(line):
+            if c.isdigit():
+                # We are currently in a digit, check surrounding tiles to see
+                # if it is next to a symbol index, if so, it is a valid number
+                for tile in ADJACENCY_MATRIX:
+                    adj_x = x+tile[0]
+                    adj_y = y+tile[1]
 
-    # At each index, search adjacent tiles
-    # If an adjacent tile is found, build the number by traversing back and
-    # forth until a non-number is found
-    # when the whole number is found, add it to any other surrounding numbers
-    # Return the sum of all numbers around that symbol, add up all values of
-    # the symbols, and that is the answer
-    return TEST1_ANSWER
+                    if (adj_x, adj_y) in indices:
+                        curr_valid = True
+                curr_digit_str += c
+            elif c == '.' or c == '\n':
+                # The number has ended, either by . or newline, set it if it
+                # is valid, then reset
+                if curr_valid:
+                    answer += int('0'+curr_digit_str)
+                curr_digit_str = ''
+                curr_valid = False
+            else:
+                # It is the symbol, so it is valid, but reset anyways
+                answer += int('0'+curr_digit_str)
+                curr_digit_str = ''
+                curr_valid = False
+
+    return answer
 
 
 def part2(lines):
-    return TEST2_ANSWER
+    # Find indices of any symbol (use a check, if not int, and not '.', symbol)
+    gear_candidates = {}
 
+    for y, line in enumerate(lines):
+        for x, c in enumerate(line):
+            # If the character is a *, we have a gear candidate
+            if c == '*':
+                # Initialize the gear candidate number list
+                gear_candidates[(x, y)] = []
 
-def get_whole_number(index, line):
-    pass
+    # Check all numbers, if it is next to a gear candidate, set it as valid
+    # After the number has been validated (store is_valid as a gear candidate
+    # index), add it to that index's list, and continue
+    for y, line in enumerate(lines):
+        curr_digit_str = ''
+        valid_gc = None
+        for x, c in enumerate(line):
+            if c.isdigit():
+                # c is a digit, check surroundings for gear candidate
+                for tile in ADJACENCY_MATRIX:
+                    adj_x = x+tile[0]
+                    adj_y = y+tile[1]
+
+                    if (adj_x, adj_y) in gear_candidates:
+                        valid_gc = (adj_x, adj_y)
+                curr_digit_str += c
+            elif c == '.' or c == '\n' and c != '*':
+                # The number has ended, either by ., newline, or other
+                # character than *
+                if valid_gc is not None and curr_digit_str != '':
+                    gear_candidates[valid_gc].append(int(curr_digit_str))
+                curr_digit_str = ''
+                valid_gc = None
+            elif c == '*' and curr_digit_str != '':
+                valid_gc = (x, y)
+                gear_candidates[valid_gc].append(int(curr_digit_str))
+                curr_digit_str = ''
+                valid_gc = None
+
+    answer = 0
+
+    for can in gear_candidates:
+        can_values = gear_candidates[can]
+        if len(can_values) == 2:
+            answer += can_values[0] * can_values[1]
+
+    return answer
 
 
 if __name__ == '__main__':
