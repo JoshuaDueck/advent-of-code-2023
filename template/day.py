@@ -1,3 +1,5 @@
+import sys
+
 TEST1_ANSWER = 0
 TEST2_ANSWER = 0
 
@@ -21,11 +23,12 @@ def main():
             print("Test failed, \
                     expected: {}, actual: {}".format(TEST2_ANSWER, result))
 
-    with open('input.txt') as f:
-        lines = f.readlines()
+    if '--test' not in sys.argv:
+        with open('input.txt') as f:
+            lines = f.readlines()
 
-        print("Part 1:", part1(lines))
-        print("Part 2:", part2(lines))
+            print("Part 1:", part1(lines))
+            print("Part 2:", part2(lines))
 
 
 def part1(lines):
